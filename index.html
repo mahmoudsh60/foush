@@ -5,6 +5,17 @@
   <title>LevelUP POS</title>
   <style>
     body { font-family: Tahoma, sans-serif; background: #f4f7f6; margin: 0; }
+    
+    /* ستايل صفحة تسجيل الدخول */
+    #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #2c3e50; }
+    .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 300px; text-align: center; }
+    .login-box input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+    .login-box button { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+    .login-box button:hover { background: #2980b9; }
+    #login-error { color: red; margin-top: 10px; font-size: 14px; }
+
+    /* ستايل لوحة التحكم (الـ POS) */
+    #pos-screen { display: none; } /* مخفي افتراضياً */
     .header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;}
     .container { display: flex; height: 90vh; padding: 10px; gap: 15px; }
     .rooms { flex: 2; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; overflow-y: auto; }
@@ -16,30 +27,39 @@
     .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; }
     .cafe-item { background: #ecf0f1; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #ccc;}
     .invoice { margin-top: auto; border-top: 2px solid #ccc; padding-top: 10px; }
-    .timer { font-size: 18px; font-weight: bold; color: #d35400; margin-top: 5px; display: none; }
-    .card.busy .timer { display: block; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h2>LevelUP POS - محاكي الكاشير</h2>
-    <div style="font-size: 14px;">الشيفت: محمود (Admin)</div>
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>LevelUP POS</h2>
+      <input type="text" id="username" placeholder="اسم المستخدم">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button onclick="attemptLogin()" id="login-btn">تسجيل الدخول</button>
+      <div id="login-error"></div>
+    </div>
   </div>
 
-  <div class="container">
-    <div class="rooms" id="rooms-container">
-      <h3>جاري تحميل الغرف...</h3>
+  <div id="pos-screen">
+    <div class="header">
+      <h2>LevelUP POS</h2>
+      <div>
+        <span id="shift-info" style="margin-left: 20px;">الشيفت: غير مسجل</span>
+        <span id="sub-info" style="color: #f1c40f; font-size: 12px;"></span>
+      </div>
     </div>
 
-    <div class="cafe">
-      <h3>الكافيتريا</h3>
-      <div class="cafe-grid" id="cafe-container"></div>
-      
-      <div class="invoice">
-        <h4>الغرفة المحددة: <span id="selected-room">لا يوجد</span></h4>
-        <ul id="invoice-items" style="list-style: none; padding: 0;"></ul>
-        <h3>إجمالي الكافيه: <span id="total">0</span> ج.م</h3>
+    <div class="container">
+      <div class="rooms" id="rooms-container"></div>
+      <div class="cafe">
+        <h3>الكافيتريا</h3>
+        <div class="cafe-grid" id="cafe-container"></div>
+        <div class="invoice">
+          <h4>الغرفة المحددة: <span id="selected-room">لا يوجد</span></h4>
+          <ul id="invoice-items" style="list-style: none; padding: 0;"></ul>
+          <h3>الإجمالي: <span id="total">0</span> ج.م</h3>
+        </div>
       </div>
     </div>
   </div>
@@ -47,18 +67,55 @@
   <script>
     let roomsData = [];
 
-    google.script.run.withSuccessHandler(function(res) {
-      if(res.error) { alert(res.error); return; }
-      roomsData = res.data;
-      renderRooms();
-    }).getRoomsData();
+    // دالة تسجيل الدخول
+    function attemptLogin() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
 
-    google.script.run.withSuccessHandler(function(res) {
-      const container = document.getElementById('cafe-container');
-      res.data.forEach(item => {
-        container.innerHTML += `<div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">${item.itemName} <br> <strong>${item.sellingPrice} ج</strong></div>`;
-      });
-    }).getCafeteriaItems();
+      if(!user || !pass) { errorDiv.innerText = "أدخل البيانات كاملة"; return; }
+      
+      btn.innerText = "جاري التحقق...";
+      errorDiv.innerText = "";
+
+      google.script.run.withSuccessHandler(function(res) {
+        if(res.success) {
+          // إخفاء شاشة الدخول وإظهار الـ POS
+          document.getElementById('login-screen').style.display = "none";
+          document.getElementById('pos-screen').style.display = "block";
+          
+          // عرض بيانات الموظف والاشتراك
+          document.getElementById('shift-info').innerText = `الشيفت: ${res.user.name} (${res.user.role})`;
+          document.getElementById('sub-info').innerText = `الاشتراك حتى: ${new Date(res.user.subExpiry).toLocaleDateString('ar-EG')}`;
+          
+          // تحميل الغرف والكافيتريا بعد نجاح الدخول
+          loadDashboardData();
+        } else {
+          btn.innerText = "تسجيل الدخول";
+          errorDiv.innerText = res.message;
+        }
+      }).verifyLogin(user, pass);
+    }
+
+    // تحميل بيانات لوحة التحكم
+    function loadDashboardData() {
+      document.getElementById('rooms-container').innerHTML = "<h3>جاري تحميل الغرف...</h3>";
+      
+      google.script.run.withSuccessHandler(function(res) {
+        if(res.error) { alert(res.error); return; }
+        roomsData = res.data;
+        renderRooms();
+      }).getRoomsData();
+
+      google.script.run.withSuccessHandler(function(res) {
+        const container = document.getElementById('cafe-container');
+        container.innerHTML = "";
+        res.data.forEach(item => {
+          container.innerHTML += `<div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">${item.itemName} <br> <strong>${item.sellingPrice} ج</strong></div>`;
+        });
+      }).getCafeteriaItems();
+    }
 
     function renderRooms() {
       const container = document.getElementById('rooms-container');
@@ -70,7 +127,6 @@
             <h3>${room.roomName}</h3>
             <p>${room.device}</p>
             <p style="font-weight:bold; color: ${isBusy ? '#e74c3c' : '#2ecc71'}">${room.status || 'متاح'}</p>
-            <div class="timer" id="timer-${room.roomName}">00:00</div>
             ${!isBusy ? 
               `<button class="btn" onclick="toggleRoom(event, '${room.roomName}', 'مشغول', '${room.device}')">فتح الغرفة</button>` : 
               `<button class="btn stop" onclick="toggleRoom(event, '${room.roomName}', 'متاح', '${room.device}')">تقفيل الغرفة</button>`
@@ -80,31 +136,22 @@
       });
     }
 
-    function selectRoom(name) {
-      document.getElementById('selected-room').innerText = name;
-    }
+    function selectRoom(name) { document.getElementById('selected-room').innerText = name; }
 
-    // دالة الفتح والقفل ورفع البيانات للفايربيز
     function toggleRoom(event, roomName, newStatus, device) {
-      event.stopPropagation(); // عشان ميعملش select للغرفة وهو بيدوس على الزرار
-      
-      // نحدث الواجهة فوراً عشان الموظف ميستناش
+      event.stopPropagation(); 
       const roomIndex = roomsData.findIndex(r => r.roomName === roomName);
       roomsData[roomIndex].status = newStatus;
       renderRooms();
 
-      // نبعت للـ Backend عشان يرمي في الشيت وفي الفايربيز
       google.script.run.withSuccessHandler(function(res){
-        if(res.error) alert("حصل مشكلة في حفظ الحالة: " + res.error);
-        else console.log("تم الرفع للفايربيز بنجاح!");
+        if(res.error) alert("مشكلة في الحفظ: " + res.error);
       }).updateRoomStatus(roomName, newStatus, device);
     }
 
     let currentTotal = 0;
     function addOrder(name, price) {
-      if(document.getElementById('selected-room').innerText === 'لا يوجد') {
-        alert('اختر غرفة أولاً!'); return;
-      }
+      if(document.getElementById('selected-room').innerText === 'لا يوجد') { alert('اختر غرفة أولاً!'); return; }
       document.getElementById('invoice-items').innerHTML += `<li>${name} - ${price} ج</li>`;
       currentTotal += price;
       document.getElementById('total').innerText = currentTotal;
