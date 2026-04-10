@@ -2,259 +2,371 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Foush POS System</title>
+  <title>Foush POS - Gaming Interface</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
-    
     :root {
-      --bg-color: #0b0f19; --panel-bg: #151b2b; --text-main: #f8fafc;
-      --accent: #00d2ff; --green: #00e676; --red: #ff1744; --orange: #ff9100;
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --primary-cyan: #00ffcc;
+      --primary-hover: #00ccaa;
+      --success-green: #2ea043;
+      --danger-red: #da3633;
+      --text-main: #c9d1d9;
+      --text-muted: #8b949e;
     }
-    body { font-family: 'Tajawal', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
     
-    /* Login Screen (موجود بس هيختفي أوتوماتيك) */
-    #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #151b2b 0%, #0b0f19 100%); position: absolute; width: 100%; z-index: 999;}
-    .login-box { background: rgba(21, 27, 43, 0.95); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid rgba(0, 210, 255, 0.3); }
-    .login-box h1 { color: var(--accent); margin-bottom: 10px; font-weight: 900;}
+    /* Login Screen */
+    #login-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+    }
+    .login-box {
+      background: var(--card-bg); padding: 40px; border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.1); width: 100%; max-width: 400px; text-align: center;
+    }
+    .login-box h1 { color: var(--primary-cyan); margin-bottom: 20px; font-weight: 700; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
+    .input-group { margin-bottom: 15px; text-align: right; }
+    .input-group input {
+      width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d;
+      color: white; border-radius: 6px; outline: none; transition: 0.3s;
+    }
+    .input-group input:focus { border-color: var(--primary-cyan); box-shadow: 0 0 5px var(--primary-cyan); }
+    .btn {
+      width: 100%; padding: 12px; background: var(--primary-cyan); color: #0d1117;
+      border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s;
+    }
+    .btn:hover { background: var(--primary-hover); box-shadow: 0 0 15px var(--primary-cyan); }
+    .error-msg { color: var(--danger-red); margin-top: 10px; font-size: 14px; }
 
-    /* Main Layout */
-    #pos-screen { display: none; height: 100vh; flex-direction: column; }
-    .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); }
-    .header h2 { margin: 0; color: var(--accent); font-weight: 900; }
-    .main-grid { display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 75px); gap: 20px; padding: 20px; box-sizing: border-box; }
+    /* Dashboard Layout */
+    #dashboard { display: none; height: 100vh; flex-direction: column; }
+    header {
+      background: var(--card-bg); padding: 15px 30px; display: flex; justify-content: space-between;
+      border-bottom: 1px solid #30363d; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    header h2 { color: var(--primary-cyan); }
+    header .user-info { color: var(--text-muted); font-size: 14px; }
+    
+    .main-layout { display: flex; flex: 1; overflow: hidden; }
     
     /* Sidebar */
-    .sidebar { background: var(--panel-bg); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #1e293b; overflow-y: auto;}
-    .sidebar h3 { margin: 0 0 10px 0; color: var(--orange); border-bottom: 2px solid #1e293b; padding-bottom: 8px;}
+    aside { width: 320px; background: var(--card-bg); border-left: 1px solid #30363d; display: flex; flex-direction: column; overflow-y: auto; }
+    .sidebar-section { padding: 20px; border-bottom: 1px solid #30363d; }
+    .sidebar-section h3 { margin-bottom: 15px; color: white; border-right: 3px solid var(--primary-cyan); padding-right: 10px; }
+    
     .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .cafe-btn { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: bold;}
-    .cafe-btn:hover { background: var(--accent); color: #0b0f19; }
+    .cafe-item { background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .cafe-item:hover { border-color: var(--primary-cyan); }
     
-    /* Invoice */
-    .invoice { margin-top: auto; background: #0b0f19; padding: 20px; border-radius: 12px; border: 1px solid var(--accent); }
-    #invoice-items { list-style: none; padding: 0; margin: 0 0 15px 0; font-size: 14px; max-height: 150px; overflow-y: auto;}
+    .invoice-area { flex: 1; padding: 20px; background: #0d1117; }
+    .invoice-log { list-style: none; margin-bottom: 15px; font-size: 14px; }
+    .invoice-log li { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #30363d; padding-bottom: 4px; }
     
-    /* Rooms */
-    .rooms-area { display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px;}
-    .room-card { background: var(--panel-bg); width: 240px; padding: 25px; border-radius: 15px; border: 2px solid #1e293b; display: flex; flex-direction: column; align-items: center; position: relative;}
-    .room-card.available { border-color: var(--green); }
-    .room-card.busy { border-color: var(--red); }
-    .room-name { font-size: 26px; font-weight: 900; margin-bottom: 5px;}
-    .device-badge { background: #1e293b; padding: 4px 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; color: var(--accent); }
+    /* Main Rooms Grid */
+    main { flex: 1; padding: 30px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; align-content: start; }
+    .room-card {
+      background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid #30363d;
+      position: relative; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .room-card.active { border-color: var(--danger-red); box-shadow: 0 0 15px rgba(218, 54, 51, 0.2); }
+    .room-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .room-name { font-size: 20px; font-weight: bold; color: white; }
+    .room-device { background: #30363d; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+    .timer { font-size: 28px; font-family: monospace; text-align: center; margin: 15px 0; color: var(--primary-cyan); }
     
-    .timer { font-size: 34px; font-family: monospace; color: var(--orange); font-weight: bold; margin: 15px 0; display: none; }
-    .room-card.busy .timer { display: block; }
-    .room-card.busy .price-info { display: block; background: #0b0f19; padding: 8px 15px; border-radius: 8px; width: 80%; text-align: center; margin-bottom: 15px;}
-    .price-info { display: none; }
-
-    .control-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 8px; font-family: 'Tajawal'; }
-    .btn-start { background: rgba(0, 230, 118, 0.1); color: var(--green); border: 1px solid var(--green); }
-    .btn-stop { background: rgba(255, 23, 68, 0.1); color: var(--red); border: 1px solid var(--red); }
-    .btn-toggle { background: #1e293b; color: white; display: none; border: 1px solid #334155;}
-    .room-card.busy .btn-toggle { display: block; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-action { flex: 1; padding: 10px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+    .btn-start { background: var(--success-green); }
+    .btn-stop { background: var(--danger-red); }
+    .btn-toggle { background: #1f6feb; }
+    .btn-action:hover { opacity: 0.8; }
+    
+    .pricing-info { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <div id="login-screen">
     <div class="login-box">
-      <h1>FOUSH</h1>
-      <h3 style="color:var(--orange)">جاري الدخول لوضع التجربة...</h3>
+      <h1>Foush POS</h1>
+      <div class="input-group">
+        <input type="text" id="username" placeholder="اسم المستخدم">
+      </div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder="كلمة المرور">
+      </div>
+      <button class="btn" onclick="handleLogin()" id="loginBtn">تسجيل الدخول</button>
+      <div id="login-error" class="error-msg"></div>
     </div>
   </div>
 
-  <div id="pos-screen">
-    <div class="header">
-      <h2>FOUSH POS</h2>
-      <div>
-        <span style="color: #cbd5e1; font-weight: bold; background: #1e293b; padding: 8px 15px; border-radius: 8px;">👤 مدير النظام (وضع التجربة)</span>
+  <div id="dashboard">
+    <header>
+      <h2>Foush POS 🎮</h2>
+      <div class="user-info">
+        <span id="user-display"></span> | انتهاء الاشتراك: <span id="expiry-display"></span>
       </div>
-    </div>
+    </header>
+    
+    <div class="main-layout">
+      <main id="rooms-container">
+        </main>
 
-    <div class="main-grid">
-      <div class="sidebar">
-        <div style="flex-grow: 1; overflow-y: auto;">
-          <h3>🍔 المطعم والكافيه</h3>
-          <div class="cafe-grid" id="cafe-container"></div>
+      <aside>
+        <div class="sidebar-section">
+          <h3>قائمة الانتظار (الـ Queue)</h3>
+          <ul id="queue-list" style="list-style: none; font-size: 14px; color: var(--text-muted);">
+            <li>لا يوجد حجوزات حالياً</li>
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>الكافيتريا</h3>
+          <p style="font-size: 12px; margin-bottom: 10px; color: var(--primary-cyan);">اختر الغرفة أولاً لإضافة الطلبات</p>
+          <div class="cafe-grid" id="cafe-container">
+            </div>
         </div>
 
-        <div class="invoice">
-          <h4 style="color:var(--green); margin-top:0;">🧾 فاتورة: <span id="selected-room" style="color: white;">حدد غرفة..</span></h4>
-          <ul id="invoice-items"></ul>
-          <h3 style="margin: 0; color: white; display: flex; justify-content: space-between; border-top: 1px dashed #334155; padding-top: 15px;">
-            <span>الإجمالي:</span>
-            <span style="color: var(--green); font-size: 24px;"><span id="total">0</span> ج</span>
-          </h3>
+        <div class="invoice-area">
+          <h3 style="color: white; margin-bottom: 15px;">فاتورة الغرفة المحددة</h3>
+          <h4 id="active-room-display" style="color: var(--primary-cyan); margin-bottom: 10px;">لم يتم التحديد</h4>
+          <ul class="invoice-log" id="invoice-items"></ul>
+          <div style="border-top: 2px solid #30363d; padding-top: 10px;">
+            <p>مشاريب: <span id="cafe-total">0</span> ج.م</p>
+            <p>لعب (مؤقت): <span id="play-total">0</span> ج.م</p>
+            <h3 style="margin-top: 10px; color: var(--danger-red);">الإجمالي: <span id="grand-total">0</span> ج.م</h3>
+          </div>
         </div>
-      </div>
-
-      <div class="rooms-area" id="rooms-container"></div>
+      </aside>
     </div>
   </div>
 
   <script>
-    let roomsData = [];
-    let cafeData = [];
-    let activeSessions = {}; 
+    let systemData = { rooms: [], cafe: [] };
+    let activeRoomsSession = {}; 
+    let selectedRoomId = null; 
+    let timerInterval = null;
 
-    // تخطي اللوجين أوتوماتيك أول ما الصفحة تفتح
-    window.onload = function() {
-      setTimeout(() => {
-        document.getElementById('login-screen').style.display = "none";
-        document.getElementById('pos-screen').style.display = "flex";
-        loadData();
-      }, 500); // نص ثانية انيميشن
-    };
+    function handleLogin() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('login-error');
+      
+      if(!user || !pass) return err.innerText = "يرجى إدخال البيانات بالكامل.";
+      
+      btn.innerText = "جاري التحقق...";
+      err.innerText = "";
 
-  function loadData() {
-      // استدعاء الغرف
-      google.script.run
-        .withSuccessHandler(res => { 
-          if(res.success) { roomsData = res.data; renderRooms(); } 
-          else { document.getElementById('rooms-container').innerHTML = `<h3 style="color:var(--red); width:100%; text-align:center;">خطأ في الشيت: ${res.error}</h3>`; }
-        })
-        .withFailureHandler(err => {
-          document.getElementById('rooms-container').innerHTML = `<h3 style="color:var(--red); width:100%; text-align:center;">خطأ في سيرفر جوجل: ${err.message}</h3>`;
-        })
-        .getRoomsData();
-      
-      // استدعاء الكافيتريا
-      google.script.run.withSuccessHandler(res => { 
-        if(res.success) { cafeData = res.data; renderCafe(); } 
-      }).getCafeteriaItems();
-      
-      // استدعاء الحجوزات
-      google.script.run.withSuccessHandler(res => { 
-        if(res.success) renderQueue(res.data); 
-      }).getQueueData();
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'flex';
+          document.getElementById('user-display').innerText = `كابتن / ${res.username}`;
+          document.getElementById('expiry-display').innerText = res.expiry;
+          loadDashboardData();
+        } else {
+          err.innerText = res.message;
+          btn.innerText = "تسجيل الدخول";
+        }
+      }).verifyLogin(user, pass);
     }
 
-    function renderCafe() {
-      const c = document.getElementById('cafe-container');
-      c.innerHTML = '';
-      cafeData.forEach(item => {
-        c.innerHTML += `<div class="cafe-btn" onclick="addOrder('${item.itemName}', ${item.price})">${item.itemName}<br><b style="color:var(--green)">${item.price} ج</b></div>`;
-      });
+    function loadDashboardData() {
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+          systemData.rooms = res.rooms;
+          systemData.cafe = res.cafe;
+          renderRooms();
+          renderCafe();
+          startGlobalTimer();
+        } else {
+          alert("خطأ في جلب البيانات: " + res.error);
+        }
+      }).getPosData();
     }
 
     function renderRooms() {
       const container = document.getElementById('rooms-container');
       container.innerHTML = '';
-      roomsData.forEach(room => {
-        let isBusy = room.status === 'مشغول';
-        let mode = activeSessions[room.roomName]?.mode || 'Single';
+      
+      systemData.rooms.forEach(r => {
+        const id = r[0], name = r[1], device = r[2], sPrice = r[3], mPrice = r[4];
         
         container.innerHTML += `
-          <div class="room-card ${isBusy ? 'busy' : 'available'}" onclick="selectRoom('${room.roomName}')">
-            <div class="room-name">${room.roomName}</div>
-            <div class="device-badge">${room.device}</div>
-            
-            <div class="timer" id="timer-${room.roomName}">00:00:00</div>
-            <div class="price-info">الوضع: <strong style="color:white;">${mode}</strong> | <span id="cost-${room.roomName}" style="color:var(--green); font-weight:bold; font-size:16px;">0</span> ج</div>
-            
-            <button class="control-btn btn-toggle" onclick="toggleMode(event, '${room.roomName}')">🔁 تبديل الوضع</button>
-            
-            ${!isBusy ? 
-              `<button class="control-btn btn-start" onclick="startRoom(event, '${room.roomName}', '${room.device}')">▶ فتح الجلسة</button>` : 
-              `<button class="control-btn btn-stop" onclick="stopRoom(event, '${room.roomName}', '${room.device}')">■ تقفيل الفاتورة</button>`
-            }
+          <div class="room-card" id="card-${id}" onclick="selectRoom('${id}')">
+            <div class="room-header">
+              <span class="room-name">${name}</span>
+              <span class="room-device">${device}</span>
+            </div>
+            <div class="timer" id="timer-${id}">00:00:00</div>
+            <div class="controls" id="controls-${id}">
+              <button class="btn-action btn-start" onclick="startRoom(event, '${id}')">بدء اللعب</button>
+            </div>
+            <div class="pricing-info">S: ${sPrice} | M: ${mPrice} / ساعة</div>
           </div>
         `;
       });
     }
 
-    setInterval(updateTimers, 1000);
-
-    function updateTimers() {
-      for (let roomName in activeSessions) {
-        let session = activeSessions[roomName];
-        let now = Math.floor(Date.now() / 1000);
-        let diff = now - session.startTime;
-        
-        let hours = Math.floor(diff / 3600);
-        let mins = Math.floor((diff % 3600) / 60);
-        let secs = diff % 60;
-        
-        document.getElementById(`timer-${roomName}`).innerText = 
-          `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-          
-        let currentCost = (diff / 3600) * session.currentPrice;
-        document.getElementById(`cost-${roomName}`).innerText = Math.floor(session.accrued + currentCost);
-      }
+    function renderCafe() {
+      const container = document.getElementById('cafe-container');
+      container.innerHTML = '';
+      systemData.cafe.forEach(c => {
+        container.innerHTML += `
+          <div class="cafe-item" onclick="addCafeItem('${c[1]}', ${c[3]})">
+            <p>${c[1]}</p>
+            <p style="color: var(--primary-cyan); font-weight: bold;">${c[3]} ج</p>
+          </div>
+        `;
+      });
     }
 
-    function startRoom(e, roomName, device) {
+    function selectRoom(roomId) {
+      selectedRoomId = roomId;
+      document.querySelectorAll('.room-card').forEach(c => c.style.borderColor = '#30363d');
+      document.getElementById(`card-${roomId}`).style.borderColor = 'var(--primary-cyan)';
+      const roomName = systemData.rooms.find(r => r[0] === roomId)[1];
+      document.getElementById('active-room-display').innerText = roomName;
+      updateInvoiceUI();
+    }
+
+    function startRoom(e, roomId) {
       e.stopPropagation();
-      let room = roomsData.find(r => r.roomName === roomName);
-      room.status = 'مشغول';
+      const roomData = systemData.rooms.find(r => r[0] === roomId);
+      const now = new Date();
       
-      activeSessions[roomName] = {
-        startTime: Math.floor(Date.now() / 1000),
-        mode: 'Single',
-        currentPrice: room.single || 0,
-        accrued: 0,
+      activeRoomsSession[roomId] = {
+        startTime: now,
+        lastToggleTime: now,
+        accruedAmount: 0,
+        currentMode: 'Single',
+        singlePrice: roomData[3],
+        multiPrice: roomData[4],
+        cafeItems: [],
         cafeTotal: 0
       };
+
+      document.getElementById(`card-${roomId}`).classList.add('active');
+      renderActiveControls(roomId);
+      selectRoom(roomId);
       
-      renderRooms();
-      selectRoom(roomName);
-      google.script.run.updateRoomFirebase(roomName, 'مشغول', device);
+      google.script.run.updateRoomFirebase(roomData[1], "Busy", roomData[2]);
     }
 
-    function toggleMode(e, roomName) {
+    function toggleMode(e, roomId) {
       e.stopPropagation();
-      let session = activeSessions[roomName];
-      let room = roomsData.find(r => r.roomName === roomName);
+      const session = activeRoomsSession[roomId];
+      if(!session) return;
+
+      const now = new Date();
+      const minutesPassed = (now - session.lastToggleTime) / 60000;
       
-      let now = Math.floor(Date.now() / 1000);
-      let diff = now - session.startTime;
-      let costSoFar = (diff / 3600) * session.currentPrice;
+      const currentRatePerHour = session.currentMode === 'Single' ? session.singlePrice : session.multiPrice;
+      const amountForPeriod = minutesPassed * (currentRatePerHour / 60);
       
-      session.accrued += costSoFar;
-      session.startTime = now;
+      session.accruedAmount += amountForPeriod;
       
-      if(session.mode === 'Single') {
-        session.mode = 'Multi';
-        session.currentPrice = room.multi || 0;
-      } else {
-        session.mode = 'Single';
-        session.currentPrice = room.single || 0;
+      session.lastToggleTime = now;
+      session.currentMode = session.currentMode === 'Single' ? 'Multi' : 'Single';
+      
+      renderActiveControls(roomId);
+      if(selectedRoomId === roomId) updateInvoiceUI();
+    }
+
+    function renderActiveControls(roomId) {
+      const session = activeRoomsSession[roomId];
+      const controls = document.getElementById(`controls-${roomId}`);
+      const toggleText = session.currentMode === 'Single' ? 'تحويل لـ Multi' : 'تحويل لـ Single';
+      const modeColor = session.currentMode === 'Single' ? '#1f6feb' : '#8957e5';
+      
+      controls.innerHTML = `
+        <button class="btn-action btn-toggle" style="background: ${modeColor}" onclick="toggleMode(event, '${roomId}')">${toggleText}</button>
+        <button class="btn-action btn-stop" onclick="stopRoom(event, '${roomId}')">إيقاف الحساب</button>
+      `;
+    }
+
+    function addCafeItem(itemName, price) {
+      if(!selectedRoomId || !activeRoomsSession[selectedRoomId]) {
+        alert("يرجى اختيار غرفة مفتوحة أولاً.");
+        return;
       }
-      renderRooms();
+      const session = activeRoomsSession[selectedRoomId];
+      session.cafeItems.push({ name: itemName, price: price });
+      session.cafeTotal += price;
+      updateInvoiceUI();
     }
 
-    function stopRoom(e, roomName, device) {
+    function stopRoom(e, roomId) {
       e.stopPropagation();
-      let totalPlayCost = document.getElementById(`cost-${roomName}`).innerText;
-      let cafeCost = activeSessions[roomName].cafeTotal;
-      let finalBill = parseInt(totalPlayCost) + cafeCost;
+      const session = activeRoomsSession[roomId];
+      const roomData = systemData.rooms.find(r => r[0] === roomId);
       
-      alert(`🧾 فاتورة [ ${roomName} ]\n\n🎮 حساب اللعب: ${totalPlayCost} ج\n🍔 حساب الكافيه: ${cafeCost} ج\n----------------\n💰 الإجمالي المطلوب: ${finalBill} ج`);
+      const now = new Date();
+      const minutesPassed = (now - session.lastToggleTime) / 60000;
+      const currentRatePerHour = session.currentMode === 'Single' ? session.singlePrice : session.multiPrice;
+      session.accruedAmount += minutesPassed * (currentRatePerHour / 60);
       
-      let room = roomsData.find(r => r.roomName === roomName);
-      room.status = 'متاح';
-      delete activeSessions[roomName];
+      const playTotal = Math.ceil(session.accruedAmount);
+      const totalBill = playTotal + session.cafeTotal;
+
+      alert(`إجمالي الفاتورة لغرفة ${roomData[1]}:\n\nلعب: ${playTotal} ج.م\nمشاريب: ${session.cafeTotal} ج.م\n\nالإجمالي المطلوب: ${totalBill} ج.م`);
+
+      delete activeRoomsSession[roomId];
+      document.getElementById(`card-${roomId}`).classList.remove('active');
+      document.getElementById(`timer-${roomId}`).innerText = "00:00:00";
+      document.getElementById(`controls-${roomId}`).innerHTML = `
+        <button class="btn-action btn-start" onclick="startRoom(event, '${roomId}')">بدء اللعب</button>
+      `;
       
-      renderRooms();
-      document.getElementById('selected-room').innerText = "حدد غرفة..";
-      document.getElementById('invoice-items').innerHTML = '';
-      document.getElementById('total').innerText = '0';
-      google.script.run.updateRoomFirebase(roomName, 'متاح', device);
+      if(selectedRoomId === roomId) updateInvoiceUI();
+      google.script.run.updateRoomFirebase(roomData[1], "Available", roomData[2]);
     }
 
-    function selectRoom(name) {
-      document.getElementById('selected-room').innerText = name;
-      let session = activeSessions[name];
-      document.getElementById('total').innerText = session ? session.cafeTotal : '0';
+    function startGlobalTimer() {
+      if(timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const now = new Date();
+        for(let roomId in activeRoomsSession) {
+          const session = activeRoomsSession[roomId];
+          const diffMs = now - session.startTime;
+          
+          const hrs = Math.floor(diffMs / 3600000).toString().padStart(2, '0');
+          const mins = Math.floor((diffMs % 3600000) / 60000).toString().padStart(2, '0');
+          const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
+          
+          document.getElementById(`timer-${roomId}`).innerText = `${hrs}:${mins}:${secs}`;
+        }
+        if(selectedRoomId && activeRoomsSession[selectedRoomId]) updateInvoiceUI();
+      }, 1000);
     }
 
-    function addOrder(name, price) {
-      let roomName = document.getElementById('selected-room').innerText;
-      if(!activeSessions[roomName]) { alert('⚠️ يجب تشغيل الغرفة أولاً لطلب الكافيتريا!'); return; }
+    function updateInvoiceUI() {
+      if(!selectedRoomId || !activeRoomsSession[selectedRoomId]) {
+        document.getElementById('invoice-items').innerHTML = '';
+        document.getElementById('cafe-total').innerText = '0';
+        document.getElementById('play-total').innerText = '0';
+        document.getElementById('grand-total').innerText = '0';
+        return;
+      }
       
-      document.getElementById('invoice-items').innerHTML += `<li>+ ${name} <span style="color:var(--accent); float:left;">${price} ج</span></li>`;
-      activeSessions[roomName].cafeTotal += price;
-      document.getElementById('total').innerText = activeSessions[roomName].cafeTotal;
+      const session = activeRoomsSession[selectedRoomId];
+      const ul = document.getElementById('invoice-items');
+      ul.innerHTML = '';
+      session.cafeItems.forEach(item => {
+        ul.innerHTML += `<li><span>${item.name}</span> <span>${item.price} ج</span></li>`;
+      });
+
+      const now = new Date();
+      const minutesPassed = (now - session.lastToggleTime) / 60000;
+      const currentRatePerHour = session.currentMode === 'Single' ? session.singlePrice : session.multiPrice;
+      const liveAccrued = session.accruedAmount + (minutesPassed * (currentRatePerHour / 60));
+      
+      document.getElementById('cafe-total').innerText = session.cafeTotal;
+      document.getElementById('play-total').innerText = Math.ceil(liveAccrued);
+      document.getElementById('grand-total').innerText = Math.ceil(liveAccrued) + session.cafeTotal;
     }
   </script>
 </body>
