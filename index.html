@@ -36,8 +36,38 @@
       <h2>LevelUP POS</h2>
       <input type="text" id="username" placeholder="اسم المستخدم">
       <input type="password" id="password" placeholder="كلمة المرور">
-      <button onclick="attemptLogin()" id="login-btn">تسجيل الدخول</button>
-      <div id="login-error"></div>
+      function attemptLogin() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      if(!user || !pass) { errorDiv.innerText = "أدخل البيانات كاملة"; return; }
+      
+      btn.innerText = "جاري التحقق...";
+      errorDiv.innerText = "";
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if(res.success) {
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('pos-screen').style.display = "block";
+            
+            document.getElementById('shift-info').innerText = `الشيفت: ${res.user.name} (${res.user.role})`;
+            document.getElementById('sub-info').innerText = `الاشتراك حتى: ${res.user.subExpiry}`;
+            
+            loadDashboardData();
+          } else {
+            btn.innerText = "تسجيل الدخول";
+            errorDiv.innerText = res.message;
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.innerText = "تسجيل الدخول";
+          errorDiv.innerText = "حدث خطأ في الاتصال بالسيرفر: " + error.message;
+        })
+        .verifyLogin(user, pass);
+    }
     </div>
   </div>
 
