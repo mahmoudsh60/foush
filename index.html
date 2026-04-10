@@ -9,94 +9,101 @@
     .container { display: flex; height: 90vh; padding: 10px; gap: 15px; }
     .rooms { flex: 2; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; overflow-y: auto; }
     .cafe { flex: 1; background: white; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; }
-    .card { background: white; padding: 15px; border-radius: 8px; text-align: center; width: 180px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; border-top: 5px solid #2ecc71; }
-    .card.busy { border-top-color: #e74c3c; }
+    .card { background: white; padding: 15px; border-radius: 8px; text-align: center; width: 180px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 5px solid #2ecc71; position: relative; }
+    .card.busy { border-top-color: #e74c3c; background: #fff5f5; }
+    .btn { background: #3498db; color: white; border: none; padding: 8px; width: 100%; margin-top: 10px; border-radius: 4px; cursor: pointer; }
+    .btn.stop { background: #e74c3c; }
     .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; }
     .cafe-item { background: #ecf0f1; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #ccc;}
     .invoice { margin-top: auto; border-top: 2px solid #ccc; padding-top: 10px; }
-    .error-msg { color: red; width: 100%; text-align: center; font-weight: bold; }
+    .timer { font-size: 18px; font-weight: bold; color: #d35400; margin-top: 5px; display: none; }
+    .card.busy .timer { display: block; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <h2>LevelUP POS - محاكي الكاشير</h2>
-    <div style="font-size: 14px; text-align: left;">
-      <span id="sub-status" style="color: #f1c40f;">جاري فحص الاشتراك...</span>
-    </div>
+    <div style="font-size: 14px;">الشيفت: محمود (Admin)</div>
   </div>
 
   <div class="container">
     <div class="rooms" id="rooms-container">
-      <h3>جاري تحميل الغرف من الشيت...</h3>
+      <h3>جاري تحميل الغرف...</h3>
     </div>
 
     <div class="cafe">
       <h3>الكافيتريا</h3>
-      <div class="cafe-grid" id="cafe-container">
-        </div>
+      <div class="cafe-grid" id="cafe-container"></div>
       
       <div class="invoice">
-        <h4>الغرفة: <span id="selected-room">لم يتم التحديد</span></h4>
+        <h4>الغرفة المحددة: <span id="selected-room">لا يوجد</span></h4>
         <ul id="invoice-items" style="list-style: none; padding: 0;"></ul>
-        <h3>الإجمالي: <span id="total">0</span> ج.م</h3>
+        <h3>إجمالي الكافيه: <span id="total">0</span> ج.م</h3>
       </div>
     </div>
   </div>
 
   <script>
-    // جلب الإعدادات (تاريخ الاشتراك)
-    google.script.run.withSuccessHandler(function(res) {
-      if(res.error) { document.getElementById('sub-status').innerText = res.error; return; }
-      let subDate = new Date(res.subExpiry).toLocaleDateString('ar-EG');
-      document.getElementById('sub-status').innerText = "الاشتراك صالح حتى: " + subDate;
-    }).getSettingsData();
+    let roomsData = [];
 
-    // جلب الغرف
     google.script.run.withSuccessHandler(function(res) {
+      if(res.error) { alert(res.error); return; }
+      roomsData = res.data;
+      renderRooms();
+    }).getRoomsData();
+
+    google.script.run.withSuccessHandler(function(res) {
+      const container = document.getElementById('cafe-container');
+      res.data.forEach(item => {
+        container.innerHTML += `<div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">${item.itemName} <br> <strong>${item.sellingPrice} ج</strong></div>`;
+      });
+    }).getCafeteriaItems();
+
+    function renderRooms() {
       const container = document.getElementById('rooms-container');
-      if (res.error) {
-        container.innerHTML = `<div class="error-msg">⚠️ خطأ في الغرف: ${res.error}</div>`;
-        return;
-      }
       container.innerHTML = '';
-      res.data.forEach(room => {
+      roomsData.forEach(room => {
         let isBusy = room.status === 'مشغول';
         container.innerHTML += `
           <div class="card ${isBusy ? 'busy' : ''}" onclick="selectRoom('${room.roomName}')">
             <h3>${room.roomName}</h3>
             <p>${room.device}</p>
             <p style="font-weight:bold; color: ${isBusy ? '#e74c3c' : '#2ecc71'}">${room.status || 'متاح'}</p>
+            <div class="timer" id="timer-${room.roomName}">00:00</div>
+            ${!isBusy ? 
+              `<button class="btn" onclick="toggleRoom(event, '${room.roomName}', 'مشغول', '${room.device}')">فتح الغرفة</button>` : 
+              `<button class="btn stop" onclick="toggleRoom(event, '${room.roomName}', 'متاح', '${room.device}')">تقفيل الغرفة</button>`
+            }
           </div>
         `;
       });
-    }).getRoomsData();
+    }
 
-    // جلب الكافيتريا
-    google.script.run.withSuccessHandler(function(res) {
-      const container = document.getElementById('cafe-container');
-      if (res.error) {
-        container.innerHTML = `<div class="error-msg">⚠️ خطأ: ${res.error}</div>`;
-        return;
-      }
-      container.innerHTML = '';
-      res.data.forEach(item => {
-        container.innerHTML += `
-          <div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">
-            ${item.itemName} <br> <strong>${item.sellingPrice} ج</strong>
-          </div>
-        `;
-      });
-    }).getCafeteriaItems();
-
-    let currentTotal = 0;
     function selectRoom(name) {
       document.getElementById('selected-room').innerText = name;
     }
 
+    // دالة الفتح والقفل ورفع البيانات للفايربيز
+    function toggleRoom(event, roomName, newStatus, device) {
+      event.stopPropagation(); // عشان ميعملش select للغرفة وهو بيدوس على الزرار
+      
+      // نحدث الواجهة فوراً عشان الموظف ميستناش
+      const roomIndex = roomsData.findIndex(r => r.roomName === roomName);
+      roomsData[roomIndex].status = newStatus;
+      renderRooms();
+
+      // نبعت للـ Backend عشان يرمي في الشيت وفي الفايربيز
+      google.script.run.withSuccessHandler(function(res){
+        if(res.error) alert("حصل مشكلة في حفظ الحالة: " + res.error);
+        else console.log("تم الرفع للفايربيز بنجاح!");
+      }).updateRoomStatus(roomName, newStatus, device);
+    }
+
+    let currentTotal = 0;
     function addOrder(name, price) {
-      if(document.getElementById('selected-room').innerText === 'لم يتم التحديد') {
-        alert('اختر غرفة أولاً لربط الطلب بها!'); return;
+      if(document.getElementById('selected-room').innerText === 'لا يوجد') {
+        alert('اختر غرفة أولاً!'); return;
       }
       document.getElementById('invoice-items').innerHTML += `<li>${name} - ${price} ج</li>`;
       currentTotal += price;
