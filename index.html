@@ -106,15 +106,27 @@
       }, 500); // نص ثانية انيميشن
     };
 
-    function loadData() {
-      google.script.run.withSuccessHandler(res => { 
-        if(res.success) { roomsData = res.data; renderRooms(); } 
-        else alert("خطأ في الغرف: " + res.error);
-      }).getRoomsData();
+  function loadData() {
+      // استدعاء الغرف
+      google.script.run
+        .withSuccessHandler(res => { 
+          if(res.success) { roomsData = res.data; renderRooms(); } 
+          else { document.getElementById('rooms-container').innerHTML = `<h3 style="color:var(--red); width:100%; text-align:center;">خطأ في الشيت: ${res.error}</h3>`; }
+        })
+        .withFailureHandler(err => {
+          document.getElementById('rooms-container').innerHTML = `<h3 style="color:var(--red); width:100%; text-align:center;">خطأ في سيرفر جوجل: ${err.message}</h3>`;
+        })
+        .getRoomsData();
       
+      // استدعاء الكافيتريا
       google.script.run.withSuccessHandler(res => { 
         if(res.success) { cafeData = res.data; renderCafe(); } 
       }).getCafeteriaItems();
+      
+      // استدعاء الحجوزات
+      google.script.run.withSuccessHandler(res => { 
+        if(res.success) renderQueue(res.data); 
+      }).getQueueData();
     }
 
     function renderCafe() {
