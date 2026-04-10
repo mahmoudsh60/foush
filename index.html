@@ -4,29 +4,70 @@
   <meta charset="UTF-8">
   <title>LevelUP POS</title>
   <style>
-    body { font-family: Tahoma, sans-serif; background: #f4f7f6; margin: 0; }
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
     
-    /* ستايل صفحة تسجيل الدخول */
-    #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #2c3e50; }
-    .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 300px; text-align: center; }
-    .login-box input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-    .login-box button { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-    .login-box button:hover { background: #2980b9; }
-    #login-error { color: red; margin-top: 10px; font-size: 14px; }
+    :root {
+      --bg-color: #0f172a; --panel-bg: #1e293b; --text-main: #f8fafc;
+      --accent: #3b82f6; --green: #10b981; --red: #ef4444; --orange: #f59e0b;
+    }
 
-    /* ستايل لوحة التحكم (الـ POS) */
-    #pos-screen { display: none; } /* مخفي افتراضياً */
-    .header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;}
-    .container { display: flex; height: 90vh; padding: 10px; gap: 15px; }
-    .rooms { flex: 2; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; overflow-y: auto; }
-    .cafe { flex: 1; background: white; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; }
-    .card { background: white; padding: 15px; border-radius: 8px; text-align: center; width: 180px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 5px solid #2ecc71; position: relative; }
-    .card.busy { border-top-color: #e74c3c; background: #fff5f5; }
-    .btn { background: #3498db; color: white; border: none; padding: 8px; width: 100%; margin-top: 10px; border-radius: 4px; cursor: pointer; }
-    .btn.stop { background: #e74c3c; }
-    .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; }
-    .cafe-item { background: #ecf0f1; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #ccc;}
-    .invoice { margin-top: auto; border-top: 2px solid #ccc; padding-top: 10px; }
+    body { font-family: 'Tajawal', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; overflow: hidden; }
+    
+    /* Login Screen */
+    #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); }
+    .login-box { background: rgba(30, 41, 59, 0.8); padding: 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); width: 320px; text-align: center; border: 1px solid #3b82f6; backdrop-filter: blur(10px); }
+    .login-box h2 { color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;}
+    .login-box input { width: 90%; padding: 12px; margin: 10px 0; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-family: 'Tajawal'; }
+    .login-box button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 15px;}
+    .login-box button:hover { background: #2563eb; box-shadow: 0 0 15px var(--accent); }
+    #login-error { color: var(--red); margin-top: 15px; font-size: 14px; }
+
+    /* Main POS Layout */
+    #pos-screen { display: none; height: 100vh; display: flex; flex-direction: column; }
+    .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .header h2 { margin: 0; color: var(--accent); text-shadow: 0 0 10px rgba(59,130,246,0.5); }
+    
+    .main-grid { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 65px); gap: 20px; padding: 20px; box-sizing: border-box; }
+    
+    /* Sidebar (Cafe & Queue & Invoice) */
+    .sidebar { background: var(--panel-bg); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #334155; overflow-y: auto; }
+    .sidebar h3 { margin: 0 0 10px 0; color: var(--orange); border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    
+    .queue-list { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 14px; }
+    .queue-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #334155; }
+    
+    .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cafe-btn { background: #334155; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: center; font-size: 13px; }
+    .cafe-btn:hover { background: var(--accent); border-color: var(--accent); }
+    
+    .invoice { margin-top: auto; background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #334155; }
+    .invoice h4 { margin: 0 0 10px 0; color: var(--green); }
+    #invoice-items { list-style: none; padding: 0; margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; max-height: 100px; overflow-y: auto;}
+    
+    /* Rooms Grid */
+    .rooms-area { display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start; overflow-y: auto; }
+    .room-card { background: var(--panel-bg); width: 220px; padding: 20px; border-radius: 12px; border: 2px solid #334155; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center;}
+    
+    .room-card.available { border-color: var(--green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+    .room-card.busy { border-color: var(--red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+    
+    .room-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+    .device-badge { background: #334155; padding: 3px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 15px; }
+    
+    .timer { font-size: 28px; font-family: monospace; color: var(--orange); font-weight: bold; margin: 10px 0; display: none; }
+    .room-card.busy .timer { display: block; }
+    
+    .room-card.busy .price-info { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 10px; }
+    .price-info { display: none; }
+
+    .control-btn { width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px; font-family: 'Tajawal';}
+    .btn-start { background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid var(--green); }
+    .btn-start:hover { background: var(--green); color: white; }
+    .btn-stop { background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid var(--red); }
+    .btn-stop:hover { background: var(--red); color: white; }
+    .btn-toggle { background: #334155; color: white; margin-bottom: 10px; display: none; }
+    .room-card.busy .btn-toggle { display: block; }
+
   </style>
 </head>
 <body>
@@ -34,117 +75,97 @@
   <div id="login-screen">
     <div class="login-box">
       <h2>LevelUP POS</h2>
-      <input type="text" id="username" placeholder="اسم المستخدم">
+      <input type="text" id="username" placeholder="اسم المستخدم (Admin)">
       <input type="password" id="password" placeholder="كلمة المرور">
-      function attemptLogin() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      const errorDiv = document.getElementById('login-error');
-      const btn = document.getElementById('login-btn');
-
-      if(!user || !pass) { errorDiv.innerText = "أدخل البيانات كاملة"; return; }
-      
-      btn.innerText = "جاري التحقق...";
-      errorDiv.innerText = "";
-
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if(res.success) {
-            document.getElementById('login-screen').style.display = "none";
-            document.getElementById('pos-screen').style.display = "block";
-            
-            document.getElementById('shift-info').innerText = `الشيفت: ${res.user.name} (${res.user.role})`;
-            document.getElementById('sub-info').innerText = `الاشتراك حتى: ${res.user.subExpiry}`;
-            
-            loadDashboardData();
-          } else {
-            btn.innerText = "تسجيل الدخول";
-            errorDiv.innerText = res.message;
-          }
-        })
-        .withFailureHandler(function(error) {
-          btn.innerText = "تسجيل الدخول";
-          errorDiv.innerText = "حدث خطأ في الاتصال بالسيرفر: " + error.message;
-        })
-        .verifyLogin(user, pass);
-    }
+      <button onclick="attemptLogin()" id="login-btn">ENTER SYSTEM</button>
+      <div id="login-error"></div>
     </div>
   </div>
 
-  <div id="pos-screen">
+  <div id="pos-screen" style="display:none;">
     <div class="header">
-      <h2>LevelUP POS</h2>
+      <h2>LevelUP DASHBOARD</h2>
       <div>
-        <span id="shift-info" style="margin-left: 20px;">الشيفت: غير مسجل</span>
-        <span id="sub-info" style="color: #f1c40f; font-size: 12px;"></span>
+        <span id="shift-info" style="margin-left: 20px; color: #cbd5e1;"></span>
+        <span id="sub-info" style="color: var(--orange); font-size: 13px;"></span>
       </div>
     </div>
 
-    <div class="container">
-      <div class="rooms" id="rooms-container"></div>
-      <div class="cafe">
-        <h3>الكافيتريا</h3>
-        <div class="cafe-grid" id="cafe-container"></div>
+    <div class="main-grid">
+      <div class="sidebar">
+        <div>
+          <h3>📋 قائمة الانتظار (Queue)</h3>
+          <div class="queue-list" id="queue-container">لا يوجد حجوزات</div>
+        </div>
+        
+        <div style="flex-grow: 1; overflow-y: auto;">
+          <h3>🍔 الكافيتريا</h3>
+          <div class="cafe-grid" id="cafe-container"></div>
+        </div>
+
         <div class="invoice">
-          <h4>الغرفة المحددة: <span id="selected-room">لا يوجد</span></h4>
-          <ul id="invoice-items" style="list-style: none; padding: 0;"></ul>
-          <h3>الإجمالي: <span id="total">0</span> ج.م</h3>
+          <h4>🧾 فاتورة: <span id="selected-room">حدد غرفة..</span></h4>
+          <ul id="invoice-items"></ul>
+          <h3 style="margin: 0; color: white; display: flex; justify-content: space-between;">
+            <span>الإجمالي:</span>
+            <span style="color: var(--green);"><span id="total">0</span> ج</span>
+          </h3>
         </div>
       </div>
+
+      <div class="rooms-area" id="rooms-container"></div>
     </div>
   </div>
 
   <script>
     let roomsData = [];
+    let cafeData = [];
+    let activeSessions = {}; // يخزن وقت الغرف الشغالة
 
-    // دالة تسجيل الدخول
     function attemptLogin() {
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
-      const errorDiv = document.getElementById('login-error');
       const btn = document.getElementById('login-btn');
-
-      if(!user || !pass) { errorDiv.innerText = "أدخل البيانات كاملة"; return; }
       
-      btn.innerText = "جاري التحقق...";
-      errorDiv.innerText = "";
+      if(!user || !pass) return;
+      btn.innerText = "AUTHENTICATING...";
 
-      google.script.run.withSuccessHandler(function(res) {
-        if(res.success) {
-          // إخفاء شاشة الدخول وإظهار الـ POS
-          document.getElementById('login-screen').style.display = "none";
-          document.getElementById('pos-screen').style.display = "block";
-          
-          // عرض بيانات الموظف والاشتراك
-          document.getElementById('shift-info').innerText = `الشيفت: ${res.user.name} (${res.user.role})`;
-          document.getElementById('sub-info').innerText = `الاشتراك حتى: ${new Date(res.user.subExpiry).toLocaleDateString('ar-EG')}`;
-          
-          // تحميل الغرف والكافيتريا بعد نجاح الدخول
-          loadDashboardData();
-        } else {
-          btn.innerText = "تسجيل الدخول";
-          errorDiv.innerText = res.message;
-        }
-      }).verifyLogin(user, pass);
+      google.script.run
+        .withSuccessHandler(res => {
+          if(res.success) {
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('pos-screen').style.display = "flex";
+            document.getElementById('shift-info').innerText = `👤 ${res.user.name} (${res.user.role})`;
+            document.getElementById('sub-info').innerText = `⏳ ينتهي في: ${res.user.subExpiry}`;
+            loadData();
+          } else {
+            btn.innerText = "ENTER SYSTEM";
+            document.getElementById('login-error').innerText = res.message;
+          }
+        })
+        .verifyLogin(user, pass);
     }
 
-    // تحميل بيانات لوحة التحكم
-    function loadDashboardData() {
-      document.getElementById('rooms-container').innerHTML = "<h3>جاري تحميل الغرف...</h3>";
-      
-      google.script.run.withSuccessHandler(function(res) {
-        if(res.error) { alert(res.error); return; }
-        roomsData = res.data;
-        renderRooms();
-      }).getRoomsData();
+    function loadData() {
+      google.script.run.withSuccessHandler(res => { roomsData = res.data; renderRooms(); }).getRoomsData();
+      google.script.run.withSuccessHandler(res => { cafeData = res.data; renderCafe(); }).getCafeteriaItems();
+      google.script.run.withSuccessHandler(res => { renderQueue(res.data); }).getQueueData();
+    }
 
-      google.script.run.withSuccessHandler(function(res) {
-        const container = document.getElementById('cafe-container');
-        container.innerHTML = "";
-        res.data.forEach(item => {
-          container.innerHTML += `<div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">${item.itemName} <br> <strong>${item.sellingPrice} ج</strong></div>`;
-        });
-      }).getCafeteriaItems();
+    function renderCafe() {
+      const c = document.getElementById('cafe-container');
+      cafeData.forEach(item => {
+        c.innerHTML += `<div class="cafe-btn" onclick="addOrder('${item.itemName}', ${item.price})">${item.itemName}<br><b style="color:var(--green)">${item.price} ج</b></div>`;
+      });
+    }
+
+    function renderQueue(qData) {
+      const c = document.getElementById('queue-container');
+      if(qData.length === 0) return;
+      c.innerHTML = '';
+      qData.forEach(q => {
+        c.innerHTML += `<div class="queue-item"><span>${q.name}</span> <span style="color:var(--accent)">${q.room}</span></div>`;
+      });
     }
 
     function renderRooms() {
@@ -152,39 +173,122 @@
       container.innerHTML = '';
       roomsData.forEach(room => {
         let isBusy = room.status === 'مشغول';
+        let mode = activeSessions[room.roomName]?.mode || 'Single';
+        let pricePerHour = mode === 'Single' ? room.single : room.multi;
+
         container.innerHTML += `
-          <div class="card ${isBusy ? 'busy' : ''}" onclick="selectRoom('${room.roomName}')">
-            <h3>${room.roomName}</h3>
-            <p>${room.device}</p>
-            <p style="font-weight:bold; color: ${isBusy ? '#e74c3c' : '#2ecc71'}">${room.status || 'متاح'}</p>
+          <div class="room-card ${isBusy ? 'busy' : 'available'}" onclick="selectRoom('${room.roomName}')">
+            <div class="room-name">${room.roomName}</div>
+            <div class="device-badge">${room.device}</div>
+            
+            <div class="timer" id="timer-${room.roomName}">00:00:00</div>
+            <div class="price-info">الوضع: ${mode} | الحساب: <span id="cost-${room.roomName}" style="color:white; font-weight:bold;">0</span> ج</div>
+            
+            <button class="control-btn btn-toggle" onclick="toggleMode(event, '${room.roomName}')">تبديل (Single/Multi)</button>
+            
             ${!isBusy ? 
-              `<button class="btn" onclick="toggleRoom(event, '${room.roomName}', 'مشغول', '${room.device}')">فتح الغرفة</button>` : 
-              `<button class="btn stop" onclick="toggleRoom(event, '${room.roomName}', 'متاح', '${room.device}')">تقفيل الغرفة</button>`
+              `<button class="control-btn btn-start" onclick="startRoom(event, '${room.roomName}', '${room.device}')">▶ تشغيل الغرفة</button>` : 
+              `<button class="control-btn btn-stop" onclick="stopRoom(event, '${room.roomName}', '${room.device}')">■ تقفيل وحساب</button>`
             }
           </div>
         `;
       });
     }
 
-    function selectRoom(name) { document.getElementById('selected-room').innerText = name; }
+    // المنطق الرياضي للتايمر والحساب
+    setInterval(updateTimers, 1000);
 
-    function toggleRoom(event, roomName, newStatus, device) {
-      event.stopPropagation(); 
-      const roomIndex = roomsData.findIndex(r => r.roomName === roomName);
-      roomsData[roomIndex].status = newStatus;
-      renderRooms();
-
-      google.script.run.withSuccessHandler(function(res){
-        if(res.error) alert("مشكلة في الحفظ: " + res.error);
-      }).updateRoomStatus(roomName, newStatus, device);
+    function updateTimers() {
+      for (let roomName in activeSessions) {
+        let session = activeSessions[roomName];
+        let now = Math.floor(Date.now() / 1000);
+        let diff = now - session.startTime;
+        
+        let hours = Math.floor(diff / 3600);
+        let mins = Math.floor((diff % 3600) / 60);
+        let secs = diff % 60;
+        
+        document.getElementById(`timer-${roomName}`).innerText = 
+          `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+          
+        // حساب التكلفة (الوقت بالساعات * السعر) + المتراكم
+        let currentCost = (diff / 3600) * session.currentPrice;
+        document.getElementById(`cost-${roomName}`).innerText = Math.floor(session.accrued + currentCost);
+      }
     }
 
-    let currentTotal = 0;
+    function startRoom(e, roomName, device) {
+      e.stopPropagation();
+      let room = roomsData.find(r => r.roomName === roomName);
+      room.status = 'مشغول';
+      
+      activeSessions[roomName] = {
+        startTime: Math.floor(Date.now() / 1000),
+        mode: 'Single',
+        currentPrice: room.single,
+        accrued: 0,
+        cafeTotal: 0
+      };
+      
+      renderRooms();
+      selectRoom(roomName);
+      google.script.run.updateRoomFirebase(roomName, 'مشغول', device);
+    }
+
+    function toggleMode(e, roomName) {
+      e.stopPropagation();
+      let session = activeSessions[roomName];
+      let room = roomsData.find(r => r.roomName === roomName);
+      
+      let now = Math.floor(Date.now() / 1000);
+      let diff = now - session.startTime;
+      let costSoFar = (diff / 3600) * session.currentPrice;
+      
+      session.accrued += costSoFar;
+      session.startTime = now;
+      
+      if(session.mode === 'Single') {
+        session.mode = 'Multi';
+        session.currentPrice = room.multi;
+      } else {
+        session.mode = 'Single';
+        session.currentPrice = room.single;
+      }
+      renderRooms();
+    }
+
+    function stopRoom(e, roomName, device) {
+      e.stopPropagation();
+      let totalPlayCost = document.getElementById(`cost-${roomName}`).innerText;
+      let cafeCost = activeSessions[roomName].cafeTotal;
+      let finalBill = parseInt(totalPlayCost) + cafeCost;
+      
+      alert(`🧾 فاتورة ${roomName}\n\nحساب اللعب: ${totalPlayCost} ج\nحساب الكافيه: ${cafeCost} ج\n----------------\nالإجمالي المطلوب: ${finalBill} ج`);
+      
+      let room = roomsData.find(r => r.roomName === roomName);
+      room.status = 'متاح';
+      delete activeSessions[roomName];
+      
+      renderRooms();
+      document.getElementById('selected-room').innerText = "حدد غرفة..";
+      document.getElementById('invoice-items').innerHTML = '';
+      document.getElementById('total').innerText = '0';
+      google.script.run.updateRoomFirebase(roomName, 'متاح', device);
+    }
+
+    function selectRoom(name) {
+      document.getElementById('selected-room').innerText = name;
+      let session = activeSessions[name];
+      document.getElementById('total').innerText = session ? session.cafeTotal : '0';
+    }
+
     function addOrder(name, price) {
-      if(document.getElementById('selected-room').innerText === 'لا يوجد') { alert('اختر غرفة أولاً!'); return; }
-      document.getElementById('invoice-items').innerHTML += `<li>${name} - ${price} ج</li>`;
-      currentTotal += price;
-      document.getElementById('total').innerText = currentTotal;
+      let roomName = document.getElementById('selected-room').innerText;
+      if(!activeSessions[roomName]) { alert('يجب تشغيل الغرفة أولاً لطلب الكافيتريا!'); return; }
+      
+      document.getElementById('invoice-items').innerHTML += `<li>+ ${name} (${price} ج)</li>`;
+      activeSessions[roomName].cafeTotal += price;
+      document.getElementById('total').innerText = activeSessions[roomName].cafeTotal;
     }
   </script>
 </body>
