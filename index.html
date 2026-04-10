@@ -4,78 +4,88 @@
   <meta charset="UTF-8">
   <title>Foush POS System</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
     
     :root {
-      --bg-color: #0f172a; --panel-bg: #1e293b; --text-main: #f8fafc;
-      --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --orange: #f59e0b;
+      --bg-color: #0b0f19; --panel-bg: #151b2b; --text-main: #f8fafc;
+      --accent: #00d2ff; --green: #00e676; --red: #ff1744; --orange: #ff9100;
     }
 
     body { font-family: 'Tajawal', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; overflow: hidden; }
     
     /* Login Screen */
-    #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); }
-    .login-box { background: rgba(30, 41, 59, 0.9); padding: 40px; border-radius: 15px; box-shadow: 0 0 40px rgba(139, 92, 246, 0.4); width: 320px; text-align: center; border: 1px solid var(--accent); }
-    .login-box h2 { color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; font-size: 28px;}
-    .login-box input { width: 90%; padding: 12px; margin: 10px 0; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-family: 'Tajawal'; }
-    .login-box button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 15px;}
-    .login-box button:hover { background: #7c3aed; box-shadow: 0 0 15px var(--accent); }
+    #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #151b2b 0%, #0b0f19 100%); }
+    .login-box { background: rgba(21, 27, 43, 0.95); padding: 40px; border-radius: 20px; box-shadow: 0 0 50px rgba(0, 210, 255, 0.2); width: 340px; text-align: center; border: 1px solid rgba(0, 210, 255, 0.3); }
+    .login-box h1 { color: var(--accent); margin: 0 0 10px 0; font-weight: 900; font-size: 36px; text-transform: uppercase; letter-spacing: 2px;}
+    .login-box h3 { color: #64748b; margin: 0 0 30px 0; font-size: 14px; font-weight: 400;}
+    .login-box input { width: 90%; padding: 14px; margin: 10px 0; background: #0b0f19; border: 1px solid #334155; color: white; border-radius: 10px; font-family: 'Tajawal'; font-size: 16px;}
+    .login-box input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,210,255,0.3); }
+    .login-box button { width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 20px;}
+    .login-box button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,210,255,0.4); }
     #login-error { color: var(--red); margin-top: 15px; font-size: 14px; font-weight: bold; }
 
     /* Main POS Layout */
     #pos-screen { display: none; height: 100vh; flex-direction: column; }
-    .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .header h2 { margin: 0; color: var(--accent); text-shadow: 0 0 10px rgba(139,92,246,0.5); }
+    .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+    .header h2 { margin: 0; color: var(--accent); font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 15px rgba(0,210,255,0.6); }
     
-    .main-grid { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 65px); gap: 20px; padding: 20px; box-sizing: border-box; }
+    .main-grid { display: grid; grid-template-columns: 340px 1fr; height: calc(100vh - 75px); gap: 20px; padding: 20px; box-sizing: border-box; }
     
     /* Sidebar */
-    .sidebar { background: var(--panel-bg); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #334155; overflow-y: auto; }
-    .sidebar h3 { margin: 0 0 10px 0; color: var(--orange); border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    .sidebar { background: var(--panel-bg); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #1e293b; overflow-y: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
+    .sidebar h3 { margin: 0 0 10px 0; color: var(--orange); border-bottom: 2px solid #1e293b; padding-bottom: 8px; display: flex; align-items: center; gap: 10px;}
     
-    .queue-list { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 14px; }
-    .queue-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #334155; }
+    .queue-list { background: #0b0f19; padding: 12px; border-radius: 10px; font-size: 14px; border: 1px solid #1e293b;}
+    .queue-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #334155; }
+    .queue-item:last-child { border: none; padding-bottom: 0;}
     
-    .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .cafe-btn { background: #334155; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: center; font-size: 13px; }
-    .cafe-btn:hover { background: var(--accent); border-color: var(--accent); }
+    .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cafe-btn { background: #1e293b; color: white; border: 1px solid #334155; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; text-align: center; font-size: 14px; font-weight: bold;}
+    .cafe-btn:hover { background: var(--accent); color: #0b0f19; border-color: var(--accent); transform: scale(1.02);}
     
-    .invoice { margin-top: auto; background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #334155; }
-    .invoice h4 { margin: 0 0 10px 0; color: var(--green); }
-    #invoice-items { list-style: none; padding: 0; margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; max-height: 120px; overflow-y: auto;}
+    .invoice { margin-top: auto; background: #0b0f19; padding: 20px; border-radius: 12px; border: 1px solid var(--accent); box-shadow: 0 0 20px rgba(0,210,255,0.1);}
+    .invoice h4 { margin: 0 0 15px 0; color: var(--green); font-size: 18px;}
+    #invoice-items { list-style: none; padding: 0; margin: 0 0 15px 0; font-size: 14px; color: #cbd5e1; max-height: 150px; overflow-y: auto;}
     
     /* Rooms Grid */
-    .rooms-area { display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start; overflow-y: auto; }
-    .room-card { background: var(--panel-bg); width: 220px; padding: 20px; border-radius: 12px; border: 2px solid #334155; transition: 0.3s; display: flex; flex-direction: column; align-items: center;}
+    .rooms-area { display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px;}
+    .room-card { background: var(--panel-bg); width: 240px; padding: 25px; border-radius: 15px; border: 2px solid #1e293b; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden;}
     
-    .room-card.available { border-color: var(--green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-    .room-card.busy { border-color: var(--red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+    .room-card.available { border-color: var(--green); box-shadow: 0 8px 25px rgba(0, 230, 118, 0.15); }
+    .room-card.available:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0, 230, 118, 0.25); }
     
-    .room-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; color: white;}
-    .device-badge { background: #334155; padding: 3px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 15px; color: #cbd5e1;}
+    .room-card.busy { border-color: var(--red); box-shadow: 0 8px 25px rgba(255, 23, 68, 0.15); }
     
-    .timer { font-size: 28px; font-family: monospace; color: var(--orange); font-weight: bold; margin: 10px 0; display: none; }
+    .room-name { font-size: 26px; font-weight: 900; margin-bottom: 5px; color: white; letter-spacing: 1px;}
+    .device-badge { background: #1e293b; padding: 4px 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; color: var(--accent); border: 1px solid rgba(0,210,255,0.2);}
+    
+    .timer { font-size: 34px; font-family: 'Courier New', Courier, monospace; color: var(--orange); font-weight: bold; margin: 15px 0; display: none; text-shadow: 0 0 10px rgba(255,145,0,0.5);}
     .room-card.busy .timer { display: block; }
     
-    .room-card.busy .price-info { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 10px; }
+    .room-card.busy .price-info { display: block; font-size: 15px; color: #94a3b8; margin-bottom: 15px; background: #0b0f19; padding: 8px 15px; border-radius: 8px; width: 80%; text-align: center;}
     .price-info { display: none; }
 
-    .control-btn { width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px; font-family: 'Tajawal';}
-    .btn-start { background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid var(--green); }
-    .btn-start:hover { background: var(--green); color: white; }
-    .btn-stop { background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid var(--red); }
+    .control-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; margin-top: 8px; font-family: 'Tajawal'; text-transform: uppercase;}
+    .btn-start { background: rgba(0, 230, 118, 0.1); color: var(--green); border: 1px solid var(--green); }
+    .btn-start:hover { background: var(--green); color: #0b0f19; }
+    .btn-stop { background: rgba(255, 23, 68, 0.1); color: var(--red); border: 1px solid var(--red); }
     .btn-stop:hover { background: var(--red); color: white; }
-    .btn-toggle { background: #334155; color: white; margin-bottom: 10px; display: none; }
+    .btn-toggle { background: #1e293b; color: white; margin-bottom: 15px; display: none; border: 1px solid #334155;}
     .room-card.busy .btn-toggle { display: block; }
-    .btn-toggle:hover { background: #475569; }
+    .btn-toggle:hover { background: var(--accent); color: #0b0f19; border-color: var(--accent);}
 
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
   </style>
 </head>
 <body>
 
   <div id="login-screen">
     <div class="login-box">
-      <h2>Foush POS</h2>
+      <h1>FOUSH</h1>
+      <h3>Point of Sale System</h3>
       <input type="text" id="username" placeholder="اسم المستخدم">
       <input type="password" id="password" placeholder="كلمة المرور">
       <button onclick="attemptLogin()" id="login-btn">دخول النظام</button>
@@ -86,9 +96,9 @@
   <div id="pos-screen">
     <div class="header">
       <h2>FOUSH POS</h2>
-      <div>
-        <span id="shift-info" style="margin-left: 20px; color: #cbd5e1;"></span>
-        <span id="sub-info" style="color: var(--orange); font-size: 14px; font-weight: bold;"></span>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <span id="shift-info" style="color: #cbd5e1; font-weight: bold; background: #1e293b; padding: 8px 15px; border-radius: 8px;"></span>
+        <span id="sub-info" style="color: var(--orange); font-size: 14px; font-weight: bold; border: 1px solid var(--orange); padding: 8px 15px; border-radius: 8px;"></span>
       </div>
     </div>
 
@@ -96,7 +106,7 @@
       <div class="sidebar">
         <div>
           <h3>📋 قائمة الانتظار</h3>
-          <div class="queue-list" id="queue-container">لا يوجد حجوزات</div>
+          <div class="queue-list" id="queue-container">لا يوجد حجوزات حالياً</div>
         </div>
         
         <div style="flex-grow: 1; overflow-y: auto;">
@@ -105,11 +115,11 @@
         </div>
 
         <div class="invoice">
-          <h4>🧾 فاتورة: <span id="selected-room">حدد غرفة..</span></h4>
+          <h4>🧾 فاتورة: <span id="selected-room" style="color: white;">حدد غرفة..</span></h4>
           <ul id="invoice-items"></ul>
-          <h3 style="margin: 0; color: white; display: flex; justify-content: space-between;">
+          <h3 style="margin: 0; color: white; display: flex; justify-content: space-between; border-top: 1px dashed #334155; padding-top: 15px;">
             <span>الإجمالي:</span>
-            <span style="color: var(--green);"><span id="total">0</span> ج</span>
+            <span style="color: var(--green); font-size: 24px;"><span id="total">0</span> ج</span>
           </h3>
         </div>
       </div>
@@ -129,8 +139,8 @@
       const btn = document.getElementById('login-btn');
       const err = document.getElementById('login-error');
       
-      if(!user || !pass) { err.innerText = "أدخل البيانات كاملة"; return; }
-      btn.innerText = "جاري التحقق...";
+      if(!user || !pass) { err.innerText = "يرجى كتابة الاسم والباسورد"; return; }
+      btn.innerText = "جاري التحقق والمزامنة...";
       err.innerText = "";
 
       google.script.run
@@ -139,7 +149,7 @@
             document.getElementById('login-screen').style.display = "none";
             document.getElementById('pos-screen').style.display = "flex";
             document.getElementById('shift-info').innerText = `👤 ${res.user.name} (${res.user.role})`;
-            document.getElementById('sub-info').innerText = `⏳ صالح حتى: ${res.user.subExpiry}`;
+            document.getElementById('sub-info').innerText = `⏳ متاح حتى: ${res.user.subExpiry}`;
             loadData();
           } else {
             btn.innerText = "دخول النظام";
@@ -148,8 +158,7 @@
         })
         .withFailureHandler(error => {
           btn.innerText = "دخول النظام";
-          // الرسالة دي هتظهر لو إنت مش عاطي تصريح للسيكريبت
-          err.innerText = "خطأ في التصريحات: يجب تشغيل الدالة setupAuth من المحرر أولاً!";
+          err.innerText = "الرجاء تنفيذ دالة setupAuth من المحرر لحل مشكلة التصاريح.";
         })
         .verifyLogin(user, pass);
     }
@@ -172,7 +181,7 @@
       if(qData.length === 0) return;
       c.innerHTML = '';
       qData.forEach(q => {
-        c.innerHTML += `<div class="queue-item"><span>${q.name}</span> <span style="color:var(--accent)">${q.room}</span></div>`;
+        c.innerHTML += `<div class="queue-item"><span>${q.name}</span> <span style="color:var(--accent); font-weight:bold;">${q.room}</span></div>`;
       });
     }
 
@@ -189,12 +198,12 @@
             <div class="device-badge">${room.device}</div>
             
             <div class="timer" id="timer-${room.roomName}">00:00:00</div>
-            <div class="price-info">الوضع: ${mode} | الحساب: <span id="cost-${room.roomName}" style="color:white; font-weight:bold;">0</span> ج</div>
+            <div class="price-info">الوضع: <strong style="color:white;">${mode}</strong> | <span id="cost-${room.roomName}" style="color:var(--green); font-weight:bold; font-size:16px;">0</span> ج</div>
             
-            <button class="control-btn btn-toggle" onclick="toggleMode(event, '${room.roomName}')">تبديل (Single/Multi)</button>
+            <button class="control-btn btn-toggle" onclick="toggleMode(event, '${room.roomName}')">🔁 تبديل الوضع</button>
             
             ${!isBusy ? 
-              `<button class="control-btn btn-start" onclick="startRoom(event, '${room.roomName}', '${room.device}')">▶ تشغيل الغرفة</button>` : 
+              `<button class="control-btn btn-start" onclick="startRoom(event, '${room.roomName}', '${room.device}')">▶ فتح الجلسة</button>` : 
               `<button class="control-btn btn-stop" onclick="stopRoom(event, '${room.roomName}', '${room.device}')">■ تقفيل الفاتورة</button>`
             }
           </div>
@@ -268,7 +277,7 @@
       let cafeCost = activeSessions[roomName].cafeTotal;
       let finalBill = parseInt(totalPlayCost) + cafeCost;
       
-      alert(`🧾 فاتورة [ ${roomName} ]\n\nحساب اللعب: ${totalPlayCost} ج\nحساب الكافيه: ${cafeCost} ج\n----------------\nالإجمالي المطلوب: ${finalBill} ج`);
+      alert(`🧾 فاتورة [ ${roomName} ]\n\n🎮 حساب اللعب: ${totalPlayCost} ج\n🍔 حساب الكافيه: ${cafeCost} ج\n----------------\n💰 الإجمالي المطلوب: ${finalBill} ج`);
       
       let room = roomsData.find(r => r.roomName === roomName);
       room.status = 'متاح';
@@ -289,9 +298,9 @@
 
     function addOrder(name, price) {
       let roomName = document.getElementById('selected-room').innerText;
-      if(!activeSessions[roomName]) { alert('يجب تشغيل الغرفة أولاً لطلب الكافيتريا!'); return; }
+      if(!activeSessions[roomName]) { alert('⚠️ يجب تشغيل الغرفة أولاً لطلب الكافيتريا!'); return; }
       
-      document.getElementById('invoice-items').innerHTML += `<li>+ ${name} (${price} ج)</li>`;
+      document.getElementById('invoice-items').innerHTML += `<li>+ ${name} <span style="color:var(--accent); float:left;">${price} ج</span></li>`;
       activeSessions[roomName].cafeTotal += price;
       document.getElementById('total').innerText = activeSessions[roomName].cafeTotal;
     }
