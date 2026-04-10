@@ -2,7 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Foush POS System</title>
+  <title>Foush POS System - Test Mode</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
     
@@ -12,20 +12,9 @@
     }
 
     body { font-family: 'Tajawal', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; overflow: hidden; }
-    
-    /* Login Screen */
-    #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #151b2b 0%, #0b0f19 100%); }
-    .login-box { background: rgba(21, 27, 43, 0.95); padding: 40px; border-radius: 20px; box-shadow: 0 0 50px rgba(0, 210, 255, 0.2); width: 340px; text-align: center; border: 1px solid rgba(0, 210, 255, 0.3); }
-    .login-box h1 { color: var(--accent); margin: 0 0 10px 0; font-weight: 900; font-size: 36px; text-transform: uppercase; letter-spacing: 2px;}
-    .login-box h3 { color: #64748b; margin: 0 0 30px 0; font-size: 14px; font-weight: 400;}
-    .login-box input { width: 90%; padding: 14px; margin: 10px 0; background: #0b0f19; border: 1px solid #334155; color: white; border-radius: 10px; font-family: 'Tajawal'; font-size: 16px;}
-    .login-box input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,210,255,0.3); }
-    .login-box button { width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 20px;}
-    .login-box button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,210,255,0.4); }
-    #login-error { color: var(--red); margin-top: 15px; font-size: 14px; font-weight: bold; }
 
-    /* Main POS Layout */
-    #pos-screen { display: none; height: 100vh; flex-direction: column; }
+    /* Main POS Layout (مفتوح مباشرة) */
+    #pos-screen { display: flex; height: 100vh; flex-direction: column; }
     .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
     .header h2 { margin: 0; color: var(--accent); font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 15px rgba(0,210,255,0.6); }
     
@@ -80,23 +69,12 @@
 </head>
 <body>
 
-  <div id="login-screen">
-    <div class="login-box">
-      <h1>FOUSH</h1>
-      <h3>Point of Sale System</h3>
-      <input type="text" id="username" placeholder="اسم المستخدم">
-      <input type="password" id="password" placeholder="كلمة المرور">
-      <button onclick="attemptLogin()" id="login-btn">دخول النظام</button>
-      <div id="login-error"></div>
-    </div>
-  </div>
-
   <div id="pos-screen">
     <div class="header">
-      <h2>FOUSH POS</h2>
+      <h2>FOUSH POS (وضع التجربة)</h2>
       <div style="display: flex; gap: 20px; align-items: center;">
-        <span id="shift-info" style="color: #cbd5e1; font-weight: bold; background: #1e293b; padding: 8px 15px; border-radius: 8px;"></span>
-        <span id="sub-info" style="color: var(--orange); font-size: 14px; font-weight: bold; border: 1px solid var(--orange); padding: 8px 15px; border-radius: 8px;"></span>
+        <span id="shift-info" style="color: #cbd5e1; font-weight: bold; background: #1e293b; padding: 8px 15px; border-radius: 8px;">👤 مدير النظام</span>
+        <span id="sub-info" style="color: var(--orange); font-size: 14px; font-weight: bold; border: 1px solid var(--orange); padding: 8px 15px; border-radius: 8px;">⏳ تخطي الحماية</span>
       </div>
     </div>
 
@@ -122,7 +100,9 @@
         </div>
       </div>
 
-      <div class="rooms-area" id="rooms-container"></div>
+      <div class="rooms-area" id="rooms-container">
+        <h3 style="color: white; width: 100%; text-align: center; margin-top: 50px;">جاري تحميل بيانات الغرف...</h3>
+      </div>
     </div>
   </div>
 
@@ -131,44 +111,32 @@
     let cafeData = [];
     let activeSessions = {}; 
 
-    function attemptLogin() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      const btn = document.getElementById('login-btn');
-      const err = document.getElementById('login-error');
-      
-      if(!user || !pass) { err.innerText = "يرجى كتابة الاسم والباسورد"; return; }
-      btn.innerText = "جاري التحقق والمزامنة...";
-      err.innerText = "";
-
-      google.script.run
-        .withSuccessHandler(res => {
-          if(res.success) {
-            document.getElementById('login-screen').style.display = "none";
-            document.getElementById('pos-screen').style.display = "flex";
-            document.getElementById('shift-info').innerText = `👤 ${res.user.name} (${res.user.role})`;
-            document.getElementById('sub-info').innerText = `⏳ متاح حتى: ${res.user.subExpiry}`;
-            loadData();
-          } else {
-            btn.innerText = "دخول النظام";
-            err.innerText = res.message;
-          }
-        })
-        .withFailureHandler(error => {
-          btn.innerText = "دخول النظام";
-          err.innerText = "خطأ في السيرفر: " + error.message;
-        })
-        .verifyLogin(user, pass);
-    }
+    // أول ما الصفحة تفتح، الدالة دي بتشتغل لوحدها
+    window.onload = function() {
+      loadData();
+    };
 
     function loadData() {
-      google.script.run.withSuccessHandler(res => { if(res.success) {roomsData = res.data; renderRooms();} }).getRoomsData();
-      google.script.run.withSuccessHandler(res => { if(res.success) {cafeData = res.data; renderCafe();} }).getCafeteriaItems();
-      google.script.run.withSuccessHandler(res => { if(res.success) renderQueue(res.data); }).getQueueData();
+      // استدعاء الغرف
+      google.script.run.withSuccessHandler(res => { 
+        if(res.success) { roomsData = res.data; renderRooms(); } 
+        else { document.getElementById('rooms-container').innerHTML = `<h3 style="color:var(--red); text-align:center;">خطأ: ${res.error}</h3>`; }
+      }).getRoomsData();
+      
+      // استدعاء الكافيتريا
+      google.script.run.withSuccessHandler(res => { 
+        if(res.success) { cafeData = res.data; renderCafe(); } 
+      }).getCafeteriaItems();
+      
+      // استدعاء الحجوزات
+      google.script.run.withSuccessHandler(res => { 
+        if(res.success) renderQueue(res.data); 
+      }).getQueueData();
     }
 
     function renderCafe() {
       const c = document.getElementById('cafe-container');
+      c.innerHTML = ''; // تفريغ
       cafeData.forEach(item => {
         c.innerHTML += `<div class="cafe-btn" onclick="addOrder('${item.itemName}', ${item.price})">${item.itemName}<br><b style="color:var(--green)">${item.price} ج</b></div>`;
       });
@@ -186,6 +154,12 @@
     function renderRooms() {
       const container = document.getElementById('rooms-container');
       container.innerHTML = '';
+      
+      if(roomsData.length === 0) {
+        container.innerHTML = `<h3 style="color:var(--orange); text-align:center; width:100%;">لا توجد غرف مضافة في الشيت</h3>`;
+        return;
+      }
+
       roomsData.forEach(room => {
         let isBusy = room.status === 'مشغول';
         let mode = activeSessions[room.roomName]?.mode || 'Single';
@@ -244,6 +218,8 @@
       
       renderRooms();
       selectRoom(roomName);
+      
+      // نرسل التحديث في الخلفية للفايربيز
       google.script.run.updateRoomFirebase(roomName, 'مشغول', device);
     }
 
@@ -285,6 +261,7 @@
       document.getElementById('selected-room').innerText = "حدد غرفة..";
       document.getElementById('invoice-items').innerHTML = '';
       document.getElementById('total').innerText = '0';
+      
       google.script.run.updateRoomFirebase(roomName, 'متاح', device);
     }
 
