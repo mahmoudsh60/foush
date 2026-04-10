@@ -2,106 +2,105 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Foush POS System</title>
+  <title>LevelUP POS</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
-    .header { background: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .container { display: flex; height: calc(100vh - 60px); }
-    .rooms-section { flex: 2; padding: 20px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 15px; align-content: flex-start; }
-    .cafe-section { flex: 1; background: #fff; border-right: 2px solid #ddd; padding: 20px; display: flex; flex-direction: column; }
-    .room-card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 200px; padding: 15px; text-align: center; border-top: 5px solid #2ecc71; cursor: pointer; transition: 0.3s; }
-    .room-card:hover { transform: translateY(-5px); }
-    .room-card.busy { border-top-color: #e74c3c; }
-    .btn { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; }
-    .btn:hover { background: #2980b9; }
-    
-    /* Cafeteria Grid */
-    .cafe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; overflow-y: auto; }
-    .cafe-card { background: #ecf0f1; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #bdc3c7; }
-    .cafe-card:hover { background: #d0d3d4; }
-    .invoice { margin-top: auto; padding-top: 15px; border-top: 2px dashed #7f8c8d; }
+    body { font-family: Tahoma, sans-serif; background: #f4f7f6; margin: 0; }
+    .header { background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;}
+    .container { display: flex; height: 90vh; padding: 10px; gap: 15px; }
+    .rooms { flex: 2; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; overflow-y: auto; }
+    .cafe { flex: 1; background: white; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; }
+    .card { background: white; padding: 15px; border-radius: 8px; text-align: center; width: 180px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; border-top: 5px solid #2ecc71; }
+    .card.busy { border-top-color: #e74c3c; }
+    .cafe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; overflow-y: auto; }
+    .cafe-item { background: #ecf0f1; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #ccc;}
+    .invoice { margin-top: auto; border-top: 2px solid #ccc; padding-top: 10px; }
+    .error-msg { color: red; width: 100%; text-align: center; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2>LevelUP - Foush POS</h2>
-    <div>
-      <span id="shift-info">الشيفت الحالي: محمود</span> | 
-      <button onclick="alert('تقفيل اليومية سيتم برمجته لاحقاً')">تقفيل اليومية</button>
+    <h2>LevelUP POS - محاكي الكاشير</h2>
+    <div style="font-size: 14px; text-align: left;">
+      <span id="sub-status" style="color: #f1c40f;">جاري فحص الاشتراك...</span>
     </div>
   </div>
 
   <div class="container">
-    <div class="rooms-section" id="rooms-container">
-      <h3 style="width: 100%;">جاري تحميل الغرف...</h3>
+    <div class="rooms" id="rooms-container">
+      <h3>جاري تحميل الغرف من الشيت...</h3>
     </div>
 
-    <div class="cafe-section">
-      <h3>الكافيتريا والمطعم</h3>
-      <input type="text" placeholder="ابحث عن منتج..." style="padding: 8px; width: 95%;">
+    <div class="cafe">
+      <h3>الكافيتريا</h3>
       <div class="cafe-grid" id="cafe-container">
         </div>
       
       <div class="invoice">
-        <h4>فاتورة الغرفة المحددة: <span id="selected-room-name">لا يوجد</span></h4>
-        <ul id="invoice-items" style="list-style: none; padding: 0;">
-          <li style="color: gray; font-size: 14px;">اختر غرفة ثم اضغط على المنتجات لإضافتها</li>
-        </ul>
-        <h3>الإجمالي: <span id="total-amount">0</span> ج.م</h3>
-        <button class="btn" style="background:#27ae60;">تأكيد الطلب</button>
+        <h4>الغرفة: <span id="selected-room">لم يتم التحديد</span></h4>
+        <ul id="invoice-items" style="list-style: none; padding: 0;"></ul>
+        <h3>الإجمالي: <span id="total">0</span> ج.م</h3>
       </div>
     </div>
   </div>
 
   <script>
-    // تحميل البيانات من سيرفر جوجل
-    google.script.run.withSuccessHandler(renderRooms).getRoomsData();
-    google.script.run.withSuccessHandler(renderCafe).getCafeteriaItems();
+    // جلب الإعدادات (تاريخ الاشتراك)
+    google.script.run.withSuccessHandler(function(res) {
+      if(res.error) { document.getElementById('sub-status').innerText = res.error; return; }
+      let subDate = new Date(res.subExpiry).toLocaleDateString('ar-EG');
+      document.getElementById('sub-status').innerText = "الاشتراك صالح حتى: " + subDate;
+    }).getSettingsData();
 
-    function renderRooms(rooms) {
+    // جلب الغرف
+    google.script.run.withSuccessHandler(function(res) {
       const container = document.getElementById('rooms-container');
-      container.innerHTML = '';
-      rooms.forEach(room => {
-        let isBusy = room.status === 'مشغول';
-        container.innerHTML += `
-          <div class="room-card ${isBusy ? 'busy' : ''}" onclick="selectRoom('${room.roomName}')">
-            <h3>${room.roomName}</h3>
-            <p style="color: #7f8c8d;">${room.device}</p>
-            <p><strong>${room.status}</strong></p>
-            ${isBusy ? '<button class="btn" style="background:#e74c3c;">تقفيل الغرفة</button>' : '<button class="btn">فتح الجلسة</button>'}
-          </div>
-        `;
-      });
-    }
-
-    function renderCafe(items) {
-      const container = document.getElementById('cafe-container');
-      container.innerHTML = '';
-      items.forEach(item => {
-        container.innerHTML += `
-          <div class="cafe-card" onclick="addToInvoice('${item.itemName}', ${item.sellingPrice})">
-            <strong>${item.itemName}</strong><br>
-            <span style="color: #2c3e50;">${item.sellingPrice} ج</span>
-          </div>
-        `;
-      });
-    }
-
-    function selectRoom(roomName) {
-      document.getElementById('selected-room-name').innerText = roomName;
-    }
-
-    let invoiceTotal = 0;
-    function addToInvoice(itemName, price) {
-      if(document.getElementById('selected-room-name').innerText === 'لا يوجد') {
-        alert('الرجاء تحديد غرفة أولاً لربط الطلب بها');
+      if (res.error) {
+        container.innerHTML = `<div class="error-msg">⚠️ خطأ في الغرف: ${res.error}</div>`;
         return;
       }
-      const invoiceList = document.getElementById('invoice-items');
-      invoiceList.innerHTML += `<li style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${itemName}</span> <span>${price} ج</span></li>`;
-      invoiceTotal += price;
-      document.getElementById('total-amount').innerText = invoiceTotal;
+      container.innerHTML = '';
+      res.data.forEach(room => {
+        let isBusy = room.status === 'مشغول';
+        container.innerHTML += `
+          <div class="card ${isBusy ? 'busy' : ''}" onclick="selectRoom('${room.roomName}')">
+            <h3>${room.roomName}</h3>
+            <p>${room.device}</p>
+            <p style="font-weight:bold; color: ${isBusy ? '#e74c3c' : '#2ecc71'}">${room.status || 'متاح'}</p>
+          </div>
+        `;
+      });
+    }).getRoomsData();
+
+    // جلب الكافيتريا
+    google.script.run.withSuccessHandler(function(res) {
+      const container = document.getElementById('cafe-container');
+      if (res.error) {
+        container.innerHTML = `<div class="error-msg">⚠️ خطأ: ${res.error}</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      res.data.forEach(item => {
+        container.innerHTML += `
+          <div class="cafe-item" onclick="addOrder('${item.itemName}', ${item.sellingPrice})">
+            ${item.itemName} <br> <strong>${item.sellingPrice} ج</strong>
+          </div>
+        `;
+      });
+    }).getCafeteriaItems();
+
+    let currentTotal = 0;
+    function selectRoom(name) {
+      document.getElementById('selected-room').innerText = name;
+    }
+
+    function addOrder(name, price) {
+      if(document.getElementById('selected-room').innerText === 'لم يتم التحديد') {
+        alert('اختر غرفة أولاً لربط الطلب بها!'); return;
+      }
+      document.getElementById('invoice-items').innerHTML += `<li>${name} - ${price} ج</li>`;
+      currentTotal += price;
+      document.getElementById('total').innerText = currentTotal;
     }
   </script>
 </body>
