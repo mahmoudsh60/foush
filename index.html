@@ -2,34 +2,34 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>LevelUP POS</title>
+  <title>Foush POS System</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
     
     :root {
       --bg-color: #0f172a; --panel-bg: #1e293b; --text-main: #f8fafc;
-      --accent: #3b82f6; --green: #10b981; --red: #ef4444; --orange: #f59e0b;
+      --accent: #8b5cf6; --green: #10b981; --red: #ef4444; --orange: #f59e0b;
     }
 
     body { font-family: 'Tajawal', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; overflow: hidden; }
     
     /* Login Screen */
     #login-screen { display: flex; height: 100vh; justify-content: center; align-items: center; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); }
-    .login-box { background: rgba(30, 41, 59, 0.8); padding: 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); width: 320px; text-align: center; border: 1px solid #3b82f6; backdrop-filter: blur(10px); }
-    .login-box h2 { color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;}
+    .login-box { background: rgba(30, 41, 59, 0.9); padding: 40px; border-radius: 15px; box-shadow: 0 0 40px rgba(139, 92, 246, 0.4); width: 320px; text-align: center; border: 1px solid var(--accent); }
+    .login-box h2 { color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; font-size: 28px;}
     .login-box input { width: 90%; padding: 12px; margin: 10px 0; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-family: 'Tajawal'; }
     .login-box button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 15px;}
-    .login-box button:hover { background: #2563eb; box-shadow: 0 0 15px var(--accent); }
-    #login-error { color: var(--red); margin-top: 15px; font-size: 14px; }
+    .login-box button:hover { background: #7c3aed; box-shadow: 0 0 15px var(--accent); }
+    #login-error { color: var(--red); margin-top: 15px; font-size: 14px; font-weight: bold; }
 
     /* Main POS Layout */
-    #pos-screen { display: none; height: 100vh; display: flex; flex-direction: column; }
+    #pos-screen { display: none; height: 100vh; flex-direction: column; }
     .header { background: var(--panel-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .header h2 { margin: 0; color: var(--accent); text-shadow: 0 0 10px rgba(59,130,246,0.5); }
+    .header h2 { margin: 0; color: var(--accent); text-shadow: 0 0 10px rgba(139,92,246,0.5); }
     
-    .main-grid { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 65px); gap: 20px; padding: 20px; box-sizing: border-box; }
+    .main-grid { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 65px); gap: 20px; padding: 20px; box-sizing: border-box; }
     
-    /* Sidebar (Cafe & Queue & Invoice) */
+    /* Sidebar */
     .sidebar { background: var(--panel-bg); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #334155; overflow-y: auto; }
     .sidebar h3 { margin: 0 0 10px 0; color: var(--orange); border-bottom: 1px solid #334155; padding-bottom: 5px; }
     
@@ -42,17 +42,17 @@
     
     .invoice { margin-top: auto; background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #334155; }
     .invoice h4 { margin: 0 0 10px 0; color: var(--green); }
-    #invoice-items { list-style: none; padding: 0; margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; max-height: 100px; overflow-y: auto;}
+    #invoice-items { list-style: none; padding: 0; margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1; max-height: 120px; overflow-y: auto;}
     
     /* Rooms Grid */
     .rooms-area { display: flex; flex-wrap: wrap; gap: 20px; align-content: flex-start; overflow-y: auto; }
-    .room-card { background: var(--panel-bg); width: 220px; padding: 20px; border-radius: 12px; border: 2px solid #334155; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center;}
+    .room-card { background: var(--panel-bg); width: 220px; padding: 20px; border-radius: 12px; border: 2px solid #334155; transition: 0.3s; display: flex; flex-direction: column; align-items: center;}
     
     .room-card.available { border-color: var(--green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
     .room-card.busy { border-color: var(--red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
     
-    .room-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
-    .device-badge { background: #334155; padding: 3px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 15px; }
+    .room-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; color: white;}
+    .device-badge { background: #334155; padding: 3px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 15px; color: #cbd5e1;}
     
     .timer { font-size: 28px; font-family: monospace; color: var(--orange); font-weight: bold; margin: 10px 0; display: none; }
     .room-card.busy .timer { display: block; }
@@ -67,6 +67,7 @@
     .btn-stop:hover { background: var(--red); color: white; }
     .btn-toggle { background: #334155; color: white; margin-bottom: 10px; display: none; }
     .room-card.busy .btn-toggle { display: block; }
+    .btn-toggle:hover { background: #475569; }
 
   </style>
 </head>
@@ -74,32 +75,32 @@
 
   <div id="login-screen">
     <div class="login-box">
-      <h2>LevelUP POS</h2>
-      <input type="text" id="username" placeholder="اسم المستخدم (Admin)">
+      <h2>Foush POS</h2>
+      <input type="text" id="username" placeholder="اسم المستخدم">
       <input type="password" id="password" placeholder="كلمة المرور">
-      <button onclick="attemptLogin()" id="login-btn">ENTER SYSTEM</button>
+      <button onclick="attemptLogin()" id="login-btn">دخول النظام</button>
       <div id="login-error"></div>
     </div>
   </div>
 
-  <div id="pos-screen" style="display:none;">
+  <div id="pos-screen">
     <div class="header">
-      <h2>LevelUP DASHBOARD</h2>
+      <h2>FOUSH POS</h2>
       <div>
         <span id="shift-info" style="margin-left: 20px; color: #cbd5e1;"></span>
-        <span id="sub-info" style="color: var(--orange); font-size: 13px;"></span>
+        <span id="sub-info" style="color: var(--orange); font-size: 14px; font-weight: bold;"></span>
       </div>
     </div>
 
     <div class="main-grid">
       <div class="sidebar">
         <div>
-          <h3>📋 قائمة الانتظار (Queue)</h3>
+          <h3>📋 قائمة الانتظار</h3>
           <div class="queue-list" id="queue-container">لا يوجد حجوزات</div>
         </div>
         
         <div style="flex-grow: 1; overflow-y: auto;">
-          <h3>🍔 الكافيتريا</h3>
+          <h3>🍔 المطعم والكافيه</h3>
           <div class="cafe-grid" id="cafe-container"></div>
         </div>
 
@@ -120,15 +121,17 @@
   <script>
     let roomsData = [];
     let cafeData = [];
-    let activeSessions = {}; // يخزن وقت الغرف الشغالة
+    let activeSessions = {}; 
 
     function attemptLogin() {
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
       const btn = document.getElementById('login-btn');
+      const err = document.getElementById('login-error');
       
-      if(!user || !pass) return;
-      btn.innerText = "AUTHENTICATING...";
+      if(!user || !pass) { err.innerText = "أدخل البيانات كاملة"; return; }
+      btn.innerText = "جاري التحقق...";
+      err.innerText = "";
 
       google.script.run
         .withSuccessHandler(res => {
@@ -136,12 +139,17 @@
             document.getElementById('login-screen').style.display = "none";
             document.getElementById('pos-screen').style.display = "flex";
             document.getElementById('shift-info').innerText = `👤 ${res.user.name} (${res.user.role})`;
-            document.getElementById('sub-info').innerText = `⏳ ينتهي في: ${res.user.subExpiry}`;
+            document.getElementById('sub-info').innerText = `⏳ صالح حتى: ${res.user.subExpiry}`;
             loadData();
           } else {
-            btn.innerText = "ENTER SYSTEM";
-            document.getElementById('login-error').innerText = res.message;
+            btn.innerText = "دخول النظام";
+            err.innerText = res.message;
           }
+        })
+        .withFailureHandler(error => {
+          btn.innerText = "دخول النظام";
+          // الرسالة دي هتظهر لو إنت مش عاطي تصريح للسيكريبت
+          err.innerText = "خطأ في التصريحات: يجب تشغيل الدالة setupAuth من المحرر أولاً!";
         })
         .verifyLogin(user, pass);
     }
@@ -174,8 +182,7 @@
       roomsData.forEach(room => {
         let isBusy = room.status === 'مشغول';
         let mode = activeSessions[room.roomName]?.mode || 'Single';
-        let pricePerHour = mode === 'Single' ? room.single : room.multi;
-
+        
         container.innerHTML += `
           <div class="room-card ${isBusy ? 'busy' : 'available'}" onclick="selectRoom('${room.roomName}')">
             <div class="room-name">${room.roomName}</div>
@@ -188,14 +195,13 @@
             
             ${!isBusy ? 
               `<button class="control-btn btn-start" onclick="startRoom(event, '${room.roomName}', '${room.device}')">▶ تشغيل الغرفة</button>` : 
-              `<button class="control-btn btn-stop" onclick="stopRoom(event, '${room.roomName}', '${room.device}')">■ تقفيل وحساب</button>`
+              `<button class="control-btn btn-stop" onclick="stopRoom(event, '${room.roomName}', '${room.device}')">■ تقفيل الفاتورة</button>`
             }
           </div>
         `;
       });
     }
 
-    // المنطق الرياضي للتايمر والحساب
     setInterval(updateTimers, 1000);
 
     function updateTimers() {
@@ -211,7 +217,6 @@
         document.getElementById(`timer-${roomName}`).innerText = 
           `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
           
-        // حساب التكلفة (الوقت بالساعات * السعر) + المتراكم
         let currentCost = (diff / 3600) * session.currentPrice;
         document.getElementById(`cost-${roomName}`).innerText = Math.floor(session.accrued + currentCost);
       }
@@ -225,7 +230,7 @@
       activeSessions[roomName] = {
         startTime: Math.floor(Date.now() / 1000),
         mode: 'Single',
-        currentPrice: room.single,
+        currentPrice: room.single || 0,
         accrued: 0,
         cafeTotal: 0
       };
@@ -249,10 +254,10 @@
       
       if(session.mode === 'Single') {
         session.mode = 'Multi';
-        session.currentPrice = room.multi;
+        session.currentPrice = room.multi || 0;
       } else {
         session.mode = 'Single';
-        session.currentPrice = room.single;
+        session.currentPrice = room.single || 0;
       }
       renderRooms();
     }
@@ -263,7 +268,7 @@
       let cafeCost = activeSessions[roomName].cafeTotal;
       let finalBill = parseInt(totalPlayCost) + cafeCost;
       
-      alert(`🧾 فاتورة ${roomName}\n\nحساب اللعب: ${totalPlayCost} ج\nحساب الكافيه: ${cafeCost} ج\n----------------\nالإجمالي المطلوب: ${finalBill} ج`);
+      alert(`🧾 فاتورة [ ${roomName} ]\n\nحساب اللعب: ${totalPlayCost} ج\nحساب الكافيه: ${cafeCost} ج\n----------------\nالإجمالي المطلوب: ${finalBill} ج`);
       
       let room = roomsData.find(r => r.roomName === roomName);
       room.status = 'متاح';
